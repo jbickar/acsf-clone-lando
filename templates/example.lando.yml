@@ -1,0 +1,14 @@
+name: [shortname]
+recipe: drupal7
+config:
+  webroot: /
+  php: '7.2'
+services:
+  appserver:
+    ssl: true
+  database:
+  #  type: mysql:5.7
+    healthcheck:
+tooling:
+  git:
+    service: appserver
