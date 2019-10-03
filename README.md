@@ -7,6 +7,7 @@ Set of scripts to clone from Stanford Web Services' (SWS) Acquia Cloud Site Fact
 1. Clone this repo
 2. `cd acsf-clone-lando`
 3. `./setup.sh` and follow the prompts. This will create a `acsf-clone-lando.sh` file in this directory and add an alias to your `~/.bashrc`, `acsf-clone-lando`
+4. Run `source ~/.bashrc`
 
 ## Use
 
@@ -19,4 +20,3 @@ Set of scripts to clone from Stanford Web Services' (SWS) Acquia Cloud Site Fact
 ## Requirements
 
 1. Lando
-

@@ -7,9 +7,7 @@
 # Path to a place to store your sites.
 WEBSERVERROOT=[webroot] #no trailing slash
 # Path to your lando configuration file for Drupal 7
-# TODO: provide template
-# TODO: dynamic for D8
-LANDOCONFIG=example.d7.lando.yml
+LANDOCONFIG=templates/example.d7.lando.yml
 # The shortname of the site you are cloning
 SHORTNAME=$1
 # ACSF "stack", e.g., leland, cardinalsites
@@ -17,7 +15,6 @@ STACK=$2
 # Your sunet id
 SUNETID=[sunetid]
 # Lando DB User (Also used in settings.php)
-# TODO: dynamic for D8
 DBUSER="drupal7"
 # Lando DB Pass (Also used in settings.php)
 DBPASS="drupal7"
@@ -38,8 +35,6 @@ AH_SITE_ENVIRONMENT="02live"
 # URL of the site on ACSF
 ACSFURL="https://$SHORTNAME.sites.stanford.edu/"
 
-# TODO variables for cardinald7 vs. leland, etc.
-
 #############
 # Prompts
 #############
@@ -57,9 +52,17 @@ if [ "$2" == "leland" ]; then
 elif [ "$2" == "cardinalsites" ]; then
   AH_SITE_ENVIRONMENT="01live"
   AH_SITE_GROUP="cardinalsites"
+  LANDOCONFIG="templates/example.d8.lando.yml"
+  DBUSER="drupal8"
+  DBPASS="drupal8"
+  DBNAME="drupal8"
 elif [ "$2" == "lelandd8" ]; then
   AH_SITE_ENVIRONMENT="01live"
   AH_SITE_GROUP="lelandd8"
+  LANDOCONFIG="templates/example.d8.lando.yml"
+  DBUSER="drupal8"
+  DBPASS="drupal8"
+  DBNAME="drupal8"
 fi
 
 # If dir exists empty it.
