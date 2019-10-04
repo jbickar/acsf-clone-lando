@@ -34,6 +34,8 @@ AH_SITE_GROUP="cardinald7"
 AH_SITE_ENVIRONMENT="02live"
 # URL of the site on ACSF
 ACSFURL="https://$SHORTNAME.sites.stanford.edu/"
+# Drupal major version. Toggled later for D8.
+DRUPALVERSION="7"
 
 #############
 # Prompts
@@ -45,6 +47,7 @@ if [ -z "$1" ]; then
   exit;
 fi
 
+# Set variables based on arguments.
 if [ "$2" == "leland" ]; then
   AH_SITE_ENVIRONMENT="03live"
   AH_SITE_GROUP="leland"
@@ -52,17 +55,19 @@ if [ "$2" == "leland" ]; then
 elif [ "$2" == "cardinalsites" ]; then
   AH_SITE_ENVIRONMENT="01live"
   AH_SITE_GROUP="cardinalsites"
-  LANDOCONFIG="templates/example.d8.lando.yml"
-  DBUSER="drupal8"
-  DBPASS="drupal8"
-  DBNAME="drupal8"
+  DRUPALVERSION="8"
 elif [ "$2" == "lelandd8" ]; then
   AH_SITE_ENVIRONMENT="01live"
   AH_SITE_GROUP="lelandd8"
-  LANDOCONFIG="templates/example.d8.lando.yml"
+  DRUPALVERSION="8"
+fi
+
+# Set variables based on Drupal major version.
+if [ "$DRUPALVERSION" == "8"]; then
   DBUSER="drupal8"
   DBPASS="drupal8"
   DBNAME="drupal8"
+  LANDOCONFIG="templates/example.d8.lando.yml"
 fi
 
 # If dir exists empty it.
@@ -130,6 +135,10 @@ sudo chmod -Rf 0755 $WEBSERVERROOT/$SHORTNAME
 
 # Create and chmod the files directory.
 mkdir -p $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/private
+if [ "$DRUPALVERSION" == "7" ]; then
+  mkdir -p $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/css_injector
+  mkdir -p $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/js_injector
+fi
 sudo chmod -Rf 0777 $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files
 
 # Clean up a few items
@@ -195,6 +204,12 @@ printf "\n" >> ${WEBSERVERROOT}/${SHORTNAME}/docroot/sites/default/settings.php
 
 # Download stage_file_proxy
 drush dl stage_file_proxy
+
+# Copy CSS Injector and JS Injector files.
+if [ "$DRUPALVERSION" == "7" ]; then
+  rsync -azq $AH_SITE_GROUP.$AH_SITE_ENVIRONMENT@$AH_SITE_GROUP$AH_SITE_ENVIRONMENT.ssh.enterprise-g1.acquia-sites.com:/mnt/files/$AH_SITE_GROUP$AH_SITE_ENVIRONMENT/$PUBLICFILES/css_injector/* $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/css_injector/
+  rsync -azq $AH_SITE_GROUP.$AH_SITE_ENVIRONMENT@$AH_SITE_GROUP$AH_SITE_ENVIRONMENT.ssh.enterprise-g1.acquia-sites.com:/mnt/files/$AH_SITE_GROUP$AH_SITE_ENVIRONMENT/$PUBLICFILES/js_injector/* $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/js_injector/
+fi
 
 # Start lando
 lando stop
