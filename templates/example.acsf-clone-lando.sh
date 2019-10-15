@@ -22,6 +22,8 @@ DBPASS="drupal7"
 DBNAME="drupal7"
 # Lando DB Server (Also used in settings.php)
 DBSERVER="database"
+# Wildcard for the database dump. E.g., cardinalddb*.sql for the cardinald7 stack.
+$DBSHORT="cardinalddb*.sql"
 # The user on your computer who should own the files.
 OWNER=$USER
 # The group on your computer who should own the files.
@@ -52,6 +54,7 @@ if [ "$2" == "leland" ]; then
   AH_SITE_ENVIRONMENT="03live"
   AH_SITE_GROUP="leland"
   ACSFURL="https://$SHORTNAME.people.stanford.edu/"
+  DBSHORT="leland03ldb*.sql"
 elif [ "$2" == "cardinalsites" ]; then
   AH_SITE_ENVIRONMENT="01live"
   AH_SITE_GROUP="cardinalsites"
@@ -63,7 +66,7 @@ elif [ "$2" == "lelandd8" ]; then
 fi
 
 # Set variables based on Drupal major version.
-if [ "$DRUPALVERSION" == "8"]; then
+if [ "$DRUPALVERSION" == "8" ]; then
   DBUSER="drupal8"
   DBPASS="drupal8"
   DBNAME="drupal8"
@@ -135,6 +138,7 @@ sudo chmod -Rf 0755 $WEBSERVERROOT/$SHORTNAME
 
 # Create and chmod the files directory.
 mkdir -p $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/private
+mkdir -p $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/tmp
 if [ "$DRUPALVERSION" == "7" ]; then
   mkdir -p $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/css_injector
   mkdir -p $WEBSERVERROOT/$SHORTNAME/docroot/sites/default/files/js_injector
@@ -159,12 +163,9 @@ sed -i .bak "s/\/$SHORTNAME/\//g" $WEBSERVERROOT/$SHORTNAME/docroot/.htaccess
 # Comment out a setting that doesn't work with Lando's apache
 sed -i .bak '/Header Set Cache-Control/s/^/#/' $WEBSERVERROOT/$SHORTNAME/docroot/.htaccess
 
-# Copy the DB over from the extraction so we can import it later.
-DBSHORT=$(echo $SHORTNAME | sed 's/\-/_/g')
-DBDUMP="$DBSHORT.sql"
 echo "Copying database dump to $WEBSERVERROOT/$SHORTNAME/db.sql"
 # TODO: is this database name stack-specific?
-cp $WEBSERVERROOT/$SHORTNAME/cardinalddb*.sql $WEBSERVERROOT/$SHORTNAME/docroot/db.sql
+cp $WEBSERVERROOT/$SHORTNAME/$DBSHORT $WEBSERVERROOT/$SHORTNAME/docroot/db.sql
 
 # Set the DB credentials in settings.php
 echo "Appending database credentials to settings.php"
@@ -192,14 +193,12 @@ FOE
 cd $WEBSERVERROOT/$SHORTNAME/docroot/
 
 # Replace lando shortname
-echo "Changing shortname in lando config file."
-LANDONAME=$(echo $DBSHORT | sed 's/\_//g')
-sed -i .bak "s/\[shortname\]/${LANDONAME}/g" $WEBSERVERROOT/$SHORTNAME/docroot/.lando.yml
+sed -i .bak "s/\[shortname\]/${SHORTNAME}/g" $WEBSERVERROOT/$SHORTNAME/docroot/.lando.yml
 rm $WEBSERVERROOT/$SHORTNAME/docroot/.lando.yml.bak
 
 # Set $base_url
 printf "\n" >> ${WEBSERVERROOT}/${SHORTNAME}/docroot/sites/default/settings.php
-echo "\$base_url = 'https://"$LANDONAME".lndo.site';" >> ${WEBSERVERROOT}/${SHORTNAME}/docroot/sites/default/settings.php
+echo "\$base_url = 'https://"$SHORTNAME".lndo.site';" >> ${WEBSERVERROOT}/${SHORTNAME}/docroot/sites/default/settings.php
 printf "\n" >> ${WEBSERVERROOT}/${SHORTNAME}/docroot/sites/default/settings.php
 
 # Download stage_file_proxy
