@@ -23,7 +23,7 @@ DBNAME="drupal7"
 # Lando DB Server (Also used in settings.php)
 DBSERVER="database"
 # Wildcard for the database dump. E.g., cardinalddb*.sql for the cardinald7 stack.
-$DBSHORT="cardinalddb*.sql"
+DBSHORT="cardinalddb*.sql"
 # The user on your computer who should own the files.
 OWNER=$USER
 # The group on your computer who should own the files.
