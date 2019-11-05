@@ -6,8 +6,10 @@
 
 # Path to a place to store your sites.
 WEBSERVERROOT=[webroot] #no trailing slash
+# Path to this script's parent directory
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Path to your lando configuration file for Drupal 7
-LANDOCONFIG=templates/example.d7.lando.yml
+LANDOCONFIG=$SCRIPTDIR/templates/example.d7.lando.yml
 # The shortname of the site you are cloning
 SHORTNAME=$1
 # ACSF "stack", e.g., leland, cardinalsites
